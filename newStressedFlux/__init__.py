@@ -238,14 +238,15 @@ def main_standalone( argc, argv ):
     
 #--------------------------------------------------------------------------------------
 def entry_point():
-     from Foam import FOAM_VERSION
-     if FOAM_VERSION( "<", "010500" ):
-        import sys; argv = sys.argv
-        return main_standalone( len( argv ), argv )
-     else:
-        from Foam.OpenFOAM import ext_Info
-        ext_Info() << "\n\n To use this solver it is necessary to SWIG OpenFOAM-1.4.X\n"
-        pass
+    from Foam import FOAM_VERSION
+    if FOAM_VERSION( "<", "010500" ):
+       import sys; argv = sys.argv
+       return main_standalone( len( argv ), argv )
+    else:
+       from Foam.OpenFOAM import ext_Info
+       ext_Info() << "\n\n To use this solver it is necessary to SWIG OpenFOAM-1.4.X\n"
+       pass
+    pass
 
 
 #--------------------------------------------------------------------------------------
