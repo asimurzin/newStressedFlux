@@ -25,11 +25,11 @@
 
 #---------------------------------------------------------------------------
 from Foam.OpenFOAM import ext_Info, nl,word
-from Foam.applications.solvers.newStressAnalysis.materialModels.fvPatchFields import tractionDisplacement
+from materialModels.fvPatchFields import tractionDisplacement
 
 
-from Foam.applications.solvers.newStressAnalysis.materialModels.rheologyModel.rheologyLaws import multiMaterial, linearElastic
-from Foam.applications.solvers.newStressAnalysis.materialModels.rheologyModel.rheologyLaws import addDictionaryConstructorTable
+from materialModels.rheologyModel.rheologyLaws import multiMaterial, linearElastic
+from materialModels.rheologyModel.rheologyLaws import addDictionaryConstructorTable
 multiMaterial_addDictionaryConstructorTable = addDictionaryConstructorTable( "multiMaterial", multiMaterial )
 linearElastic_addDictionaryConstructorTable = addDictionaryConstructorTable( "linearElastic", linearElastic )
 
@@ -58,7 +58,7 @@ def createFields( runTime, mesh ):
                                 dimensionedSymmTensor( word( "zero" ), dimForce/dimArea, symmTensor.zero)
                               )
     
-    from Foam.applications.solvers.newStressAnalysis.materialModels.rheologyModel import rheologyModel
+    from materialModels.rheologyModel import rheologyModel
     rheology = rheologyModel( sigma )
 
     return U, sigma, rheology
@@ -75,7 +75,7 @@ def readStressedFoamControls( mesh):
     from Foam.OpenFOAM import readScalar
     convergenceTolerance = readScalar(stressControl.lookup( word( "U" ) ) )
     
-    from Foam.applications.solvers.newStressAnalysis.materialModels.componentReference import componentReference
+    from materialModels.componentReference import componentReference
 #    from Foam.template import PtrList
 #    cr = PtrList( componentReference )( stressControl.lookup( word( "componentReference" ) ), componentReference.iNew(mesh) )
     
@@ -237,23 +237,21 @@ def main_standalone( argc, argv ):
 
     
 #--------------------------------------------------------------------------------------
-import sys, os
-from Foam import FOAM_VERSION
-if FOAM_VERSION( "<", "010500" ):
-   if __name__ == "__main__" :
-      argv = sys.argv
-      if len( argv ) >1 and argv[ 1 ]=="-test":
-        argv = None
-        test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'local', 'r1.4.1-dev', 'newStressedFoam' )
-        argv = [ __file__, test_dir, 'plateHole' ] 
+def entry_point():
+     from Foam import FOAM_VERSION
+     if FOAM_VERSION( "<", "010500" ):
+        import sys; argv = sys.argv
+        return main_standalone( len( argv ), argv )
+     else:
+        from Foam.OpenFOAM import ext_Info
+        ext_Info() << "\n\n To use this solver it is necessary to SWIG OpenFOAM-1.4.X\n"
         pass
-      os._exit( main_standalone( len( argv ), argv ) )
-      pass
-else :
-   from Foam.OpenFOAM import ext_Info
-   ext_Info() << "\n\n To use this solver it is necessary to SWIG OpenFOAM-1.4.X\n"
-   pass
 
 
 #--------------------------------------------------------------------------------------
-
+if __name__ == "__main__" :
+    entry_point()
+    pass
+    
+    
+#--------------------------------------------------------------------------------------
